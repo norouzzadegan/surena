@@ -1,0 +1,5 @@
+click>=8.1,<9
+docker>=6.0.1,<7
+paramiko>=2.7.4,<3
+simplejson>=3.17.6,<4
+urllib3>=1.26.4,<2
