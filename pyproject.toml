@@ -1,0 +1,56 @@
+[tool.poetry]
+name = "surena"
+version = "0.1.0"
+description = ""
+authors = ["Mohammad Norouzzadegan <Norouzzadegan@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+docker = "^7.0.0"
+click = "^8.1.7"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0.0"
+mypy = "^1.8.0"
+isort = "^5.13.2"
+black = "^24.1.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+surena = "src.surena.__main__:cli"
+
+[tool.mypy]
+namespace_packages = true
+explicit_package_bases = true
+
+no_implicit_optional = true
+strict_equality = true
+
+warn_unused_configs = true
+warn_unused_ignores = true
+warn_return_any = true
+warn_redundant_casts = true
+warn_unreachable = true
+check_untyped_defs = true
+
+pretty = true
+show_column_numbers = true
+show_error_context = true
+show_error_codes = true
+show_traceback = true
+
+exclude = "venv/|env/|virtualenv/|docs/|build/"
+mypy_path = "src/"
+
+[tool.black]
+preview = true
+line_length = 88
+
+[tool.isort]
+profile = "black"
+line_length = 88
