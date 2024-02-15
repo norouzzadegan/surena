@@ -65,6 +65,5 @@ line_length = 88
 module = [
     "docker.*",
     "pkg_resources",
-    "simplejson.*"
 ]
 ignore_missing_imports = true

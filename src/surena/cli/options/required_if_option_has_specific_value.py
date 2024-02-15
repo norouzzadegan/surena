@@ -7,6 +7,7 @@ import click
 def required_if_option_has_specific_value(
     option_name: str, option_value: str
 ) -> Type[click.Option]:
+    option_name = option_name.replace('-', '_')
     class RequiredIfOptionHasSpecificValue(click.Option):
         def __init__(self, *args: Any, **kwargs: Any):
             kwargs["required"] = kwargs.get("required", True)

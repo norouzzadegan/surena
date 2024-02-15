@@ -19,8 +19,6 @@ from docker.errors import (
 from docker.models.containers import Container
 from docker.tls import TLSConfig
 from requests.exceptions import ReadTimeout
-from simplejson.errors import JSONDecodeError
-
 
 class DockerHost:
     CONNECTION_TIMEOUT = 180
@@ -93,7 +91,7 @@ class DockerHost:
     def build_image(self, dockerfile_path: str, image_name: str) -> ImageCollection:
         try:
             return self._client.images.build(
-                path=Path(dockerfile_path).parent.absolute(),
+                path=str(Path(dockerfile_path).parent.absolute()),
                 dockerfile=dockerfile_path,
                 tag=image_name,
                 rm=True,
