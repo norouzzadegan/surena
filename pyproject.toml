@@ -6,9 +6,12 @@ authors = ["Mohammad Norouzzadegan <Norouzzadegan@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.8.1"
 docker = "^7.0.0"
 click = "^8.1.7"
+types-paramiko = "^3.4.0.20240205"
+paramiko = "^3.4.0"
+types-requests = "^2.31.0.20240125"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -16,6 +19,7 @@ pytest = "^8.0.0"
 mypy = "^1.8.0"
 isort = "^5.13.2"
 black = "^24.1.1"
+flake8 = "^7.0.0"
 
 [build-system]
 requires = ["poetry-core"]
@@ -54,3 +58,13 @@ line_length = 88
 [tool.isort]
 profile = "black"
 line_length = 88
+
+[[tool.mypy.overrides]]
+# This list should be checked periodically. Maybe, one of them becomes
+# type-safe.
+module = [
+    "docker.*",
+    "pkg_resources",
+    "simplejson.*"
+]
+ignore_missing_imports = true
