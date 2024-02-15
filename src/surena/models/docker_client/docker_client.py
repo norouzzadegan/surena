@@ -4,12 +4,10 @@ import random
 import socket
 import string
 from pathlib import Path
-from typing import Iterable, Optional
+from typing import Iterable
 
 import urllib3
-from docker import Client
-from docker import DockerClient as Client
-from docker import tls
+from docker import DockerClient
 from docker.client import ContainerCollection, ImageCollection
 from docker.errors import (
     APIError,
@@ -18,17 +16,23 @@ from docker.errors import (
     DockerException,
     ImageNotFound,
 )
-from pkg_resources import resource_filename
+from docker.models.containers import Container
+from docker.tls import TLSConfig
 from requests.exceptions import ReadTimeout
 from simplejson.errors import JSONDecodeError
 
 
-class DockerClient:
+class DockerHost:
     CONNECTION_TIMEOUT = 180
 
     def __init__(self, address: str, port: int) -> None:
         self._address = address
         self._port = port
+        self._exception_text = (
+            f'Unable to connect to Docker host "{self._address}:{self._port}".You can'
+            f' do it by below command:\n"docker -H {self._address}:{self._port} ps"\nto'
+            " determine if access to it is possible."
+        )
         if self.check_server_up() is False:
             raise ValueError(
                 'The address "{}" does not correspond to an active server.\n Please'
@@ -37,7 +41,7 @@ class DockerClient:
 
         self._client = self._get_docker_client()
 
-    def check_server_up(self) -> None:
+    def check_server_up(self) -> bool:
         try:
             with socket.create_connection(
                 (self._address, self._port), timeout=self.CONNECTION_TIMEOUT
@@ -47,46 +51,36 @@ class DockerClient:
             return False
 
     def get_docker_host_operation_system_type(self) -> str:
-        return self._client.version()["Os"]
+        return str(self._client.version()["Os"])
 
-    def _get_docker_client(self) -> Client:
-        exception_text = (
-            f'Unable to connect to Docker host "{self._address}:{self._port}".You can'
-            ' do it by below command:\n"docker -H'
-            f' {self._address}:{self._port} ps"\nto determine if access to it is possible.'
-        )
-        if self.check_server_up(self._address, self._port) == False:
-            AssertionError(exception_text)
-
+    def _get_docker_client(self) -> DockerClient:
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-        tls = tls.TLSConfig(ca_cert="./ca.pem")
-
         try:
-            client = Client(
+            client = DockerClient(
                 base_url="tcp://{}:{}".format(self._address, self._port),
                 timeout=self.CONNECTION_TIMEOUT,
             )
-            if client.ping() is True:
+            if bool(client.ping()) is True:
                 return client
             else:
-                raise ValueError(exception_text)
+                raise ValueError(self._exception_text)
         except DockerException:
             try:
-                client = Client(
+                client = DockerClient(
                     base_url="tcp://{}:{}".format(self._address, self._port),
-                    tls=tls,
+                    tls=TLSConfig(ca_cert="./ca.pem"),
                     timeout=self.CONNECTION_TIMEOUT,
                 )
-                if client.ping() is True:
+                if bool(client.ping()) is True:
                     return client
                 else:
-                    raise ValueError(exception_text)
+                    raise ValueError(self._exception_text)
             except (ReadTimeout, DockerException):
-                raise ValueError(exception_text)
+                raise ValueError(self._exception_text)
         except (ReadTimeout, JSONDecodeError):
-            raise ValueError(exception_text)
+            raise ValueError(self._exception_text)
 
-    def get_unique_image_name(self) -> str:
+    def get_image_unique_name(self) -> str:
         existing_image_names = {i.tags[0] for i in self._client.images.list() if i.tags}
 
         while True:
@@ -106,38 +100,37 @@ class DockerClient:
                 timeout=self.CONNECTION_TIMEOUT,
             )[0]
         except (BuildError, APIError) as e:
-            raise BuildError("Could not build image\n{}".format(e))
+            raise BuildError(f"Cannot build image\n{e}.\n{self._exception_text}")
 
     def run_container(self, image: ImageCollection, **kwrgs) -> ContainerCollection:
         try:
             return self._client.containers.run(image.id, **kwrgs)
         except (ContainerError, APIError):
-            return ContainerError("Could not run container.")
+            return ContainerError(
+                f"Could not run a container on Docker host.\n{self._exception_text}"
+            )
 
-    def remove_image(self, image: ImageCollection) -> bool:
+    def remove_images(self, images: Iterable[ImageCollection]) -> None:
+        for image in images:
+            self.remove_image(image)
+
+    def remove_image(self, image: ImageCollection) -> None:
         try:
             self._client.images.remove(image=image.id, force=True, noprune=False)
-            return True
         except (ImageNotFound, APIError):
-            raise ValueError("...")
+            raise ValueError(
+                f'Cannot remove image "{image.name}".\n{self._exception_text}'
+            )
 
-    def remove_container(self, container: ContainerCollection) -> bool:
-        try:
-            self._client.containers.remove(container, force=True)
-            return True
-        except (ImageNotFound, APIError):
-            raise ValueError(".....")
-
-    def destroy_images(self, images: Iterable[ImageCollection]) -> None:
-        for image in images:
-            self.destroy_images(image)
-
-    def destroy_image(self, image: ImageCollection) -> None:
-        self.remove_image(image)
-
-    def destroy_containers(self, containers: Iterable[ContainerCollection]) -> None:
+    def remove_containers(self, containers: Iterable[ContainerCollection]) -> None:
         for container in containers:
-            self.destroy_images(container)
+            self.remove_container(container)
 
-    def destroy_container(self, container: ContainerCollection) -> None:
-        self.remove_image(container)
+    def remove_container(self, container: ContainerCollection) -> None:
+        try:
+            container_: Container = self._client.containers.get(container)
+            container_.remove(force=True)
+        except (ImageNotFound, APIError):
+            raise ValueError(
+                f'Cannot remove container "{container.name}".\n{self._exception_text}'
+            )
