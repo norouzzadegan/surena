@@ -9,9 +9,7 @@ class SSHServer:
     def __init__(self, address: str, port: int, username: str, password: str) -> None:
         self._client = SSHClient()
         self._client.set_missing_host_key_policy(AutoAddPolicy())
-        self._client.connect(
-            address, username=username, password=password, port=port
-        )
+        self._client.connect(address, username=username, password=password, port=port)
 
     def execute_command(self, command: str) -> None:
         _, stdout, _ = self._client.exec_command(command)
