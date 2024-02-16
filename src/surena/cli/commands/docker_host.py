@@ -19,7 +19,9 @@ def is_docker_host(docker_host_address: str, docker_host_port: int) -> None:
     """
     try:
         DockerHost(docker_host_address, docker_host_port)
-        logger.info(f'Address "{docker_host_address}:{docker_host_port}" is a docker host.')
+        logger.info(
+            f'Address "{docker_host_address}:{docker_host_port}" is a docker host.'
+        )
     except ValueError:
         logger.error(
             'Surena could not understand address "{docker_host_address}:{port}" is a'

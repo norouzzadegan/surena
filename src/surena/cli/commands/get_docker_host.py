@@ -12,10 +12,11 @@ logging.basicConfig(level=logging.INFO)
 
 
 # SECONDS_OF_LIVE = 300
-SECONDS_OF_LIVE = 40 
+SECONDS_OF_LIVE = 40
 
 
 logger = logging.getLogger()
+
 
 @click.command("get-docker-host")
 @click.option(
@@ -110,16 +111,12 @@ def get_docker_host(
     username = spy_container.generate_docker_host_unique_username()
     password = SpyContainer.generate_random_word()
     spy_container.add_username_to_docker_host(username, password)
-
+    spy_container.add_username_to_sudoer_group(username)
     docker_host_free_port = spy_container.get_free_port_on_docker_host()
     # spy_container.add_port_to_service_ssh()
 
     if access_method == "tor":
         tor_port = spy_container.get_free_port_on_docker_host()
-        print('QQQQQQQQQQQQQ')
-        
-        print(docker_host_free_port, tor_port)
-        print('XXXXXXXXXXXXXXXXXXXXXXXxx')
         spy_container.config_service_tor(docker_host_free_port, tor_port)
         spy_container.start_service_tor()
         spy_container.wait_until_conect_to_tor_network()
@@ -156,23 +153,25 @@ def get_docker_host(
     try:
         countdown(SECONDS_OF_LIVE)
     finally:
+        ...
         spy_container.delete_username_from_docker_host(username)
-        try:
-            docker_client.remove_container(spy_container)
-            logger.info('Surena removed Image "spy container" from Docker Host.')
-        except ValueError:
-            logger.error("Surena could not remove container from Docker Host.")
+        spy_container.delelte_username_from_sudoer_group(username)
+        # try:
+        #     docker_client.remove_container(spy_container)
+        #     logger.info('Surena removed Image "spy container" from Docker Host.')
+        # except ValueError:
+        #     logger.error("Surena could not remove container from Docker Host.")
 
-        try: 
-            docker_client.remove_image(image)
-            logger.info(
-                'Surena removed Image "{}" from Docker Host.'.format(image_name)
-            )
-        except:
-            logger.error(
-                'Surena could not remove Image "{}" from Docker Host.'.format(
-                    image_name
-                )
-            )
+        # try:
+        #     docker_client.remove_image(image)
+        #     logger.info(
+        #         'Surena removed Image "{}" from Docker Host.'.format(image_name)
+        #     )
+        # except:
+        #     logger.error(
+        #         'Surena could not remove Image "{}" from Docker Host.'.format(
+        #             image_name
+        #         )
+        #     )
         # docker_client.destroy_containers()
         # docker_client.destroy_images()
