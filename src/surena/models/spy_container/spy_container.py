@@ -38,7 +38,7 @@ class SpyContainer:
             random.choice(string.ascii_lowercase) for _ in range(word_length)
         )
 
-    def generate_docker_host_unique_username(self) -> str:
+    def generate_docker_host_unique_username(self, username_length: int) -> str:
         usernames_command = (
             f'cat /{self._hole_directory_path}/etc/passwd | cut -d ":" -f 1'
         )
@@ -47,7 +47,7 @@ class SpyContainer:
         assert usernames is not None
 
         while True:
-            username = SpyContainer.generate_random_word()
+            username = SpyContainer.generate_random_word(username_length)
             if username not in usernames:
                 break
 
@@ -114,15 +114,14 @@ class SpyContainer:
 
     def get_tor_hostname(self) -> str:
         return str(self.execute_command("cat /var/lib/tor/hidden_service/hostname"))
-###############################
-    def wait_until_conect_to_tor_network(self) -> None:
+
+    def wait_until_connect_to_tor_network(self) -> None:
         while True:
             tor_log = self.execute_command("cat /nohup.out")
-            logger.info("Spy container can not connect to Tor Netwrok until now.")
-            if tor_log is None:
-                raise AssertionError("")
+            logger.info("Spy container cannot connect to Tor Network yet.")
+            assert tor_log is not None
             if "100% (done): Done" in tor_log:
-                logger.info("Spy container can connect to Tor Netwrok now.")
+                logger.info("Spy container has connected to the Tor Network.")
                 break
             time.sleep(5)
 
@@ -135,28 +134,34 @@ class SpyContainer:
         free_port_on_ssh_server: int,
         ssh_port_on_docker_host: int,
     ) -> None:
-        self.execute_command(
+        ssh_command = (
             f"sshpass -p {ssh_server_password} ssh -o 'StrictHostKeyChecking=no' "
-            f"-R *:{str(free_port_on_ssh_server)}:localhost:{str(ssh_port_on_docker_host)} -f -N "
-            f"-p {ssh_server_port} {ssh_server_username}@{ssh_server_address}  "
+            f"-R *:{free_port_on_ssh_server}:localhost:{ssh_port_on_docker_host} -f -N "
+            f"-p {ssh_server_port} {ssh_server_username}@{ssh_server_address}"
         )
+        self.execute_command(ssh_command)
 
     def delete_username_from_docker_host(
         self,
         username: str,
     ) -> None:
-        self.execute_command("sed -i '/^{}:.*/d' /data/etc/passwd".format(username))
-        self.execute_command("sed -i '/^{}:.*/d' /data/etc/shadow".format(username))
+        delete_from_passwd_commad = (
+            f"sed -i '/^{username}:.*/d' /{self._hole_directory_path}/etc/passwd"
+        )
+        delete_from_shadow_command = (
+            f"sed -i '/^{username}:.*/d' /{self._hole_directory_path}/etc/shadow"
+        )
+
+        self.execute_command(delete_from_passwd_commad)
+        self.execute_command(delete_from_shadow_command)
 
     def execute_command(self, *command: str) -> Optional[str]:
         output = self._spy_container.exec_run(
             cmd=["sh", "-c"] + list(command), tty=True, demux=True
         )[1][0]
-        if output is None:
-            return None
-        else:
-            return str(output.decode("utf-8"))
+
+        return output.decode("utf-8") if output else None
 
     @property
-    def container(self):
+    def container(self) -> Container:
         return self._spy_container

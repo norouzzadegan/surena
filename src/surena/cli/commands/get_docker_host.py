@@ -112,13 +112,12 @@ def get_docker_host(
     spy_container.add_username_to_docker_host(username, password)
     spy_container.add_username_to_sudoer_group(username)
     docker_host_free_port = spy_container.get_free_port_on_docker_host()
-    # spy_container.add_port_to_service_ssh()
 
     if access_method == "tor":
         tor_port = spy_container.get_free_port_on_docker_host()
         spy_container.config_service_tor(docker_host_free_port, tor_port)
         spy_container.run_tor_service()
-        spy_container.wait_until_conect_to_tor_network()
+        spy_container.wait_until_connect_to_tor_network()
         tor_hostname = spy_container.get_tor_hostname().strip()
         logger.info(
             'Run command "torsocks ssh {}@{} -p {}" to connect to target host with'
