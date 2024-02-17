@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.INFO)
 
 
 # SECONDS_OF_LIVE = 300
-SECONDS_OF_LIVE = 40
+SECONDS_OF_LIVE = 10
 
 
 logger = logging.getLogger()
@@ -64,7 +64,6 @@ logger = logging.getLogger()
     "--ssh-server-port",
     type=Port(),
     cls=required_if_option_has_specific_value("access-method", "reverse-ssh"),
-    default=22,
     show_default=True,
     help="The SSH port of remote SSH server.",
 )
@@ -129,10 +128,10 @@ def get_docker_host(
         )
     else:
         ssh_client = SSHServer(
-            ssh_server_address,
-            ssh_server_port,
-            ssh_server_username,
-            ssh_server_password,
+            address=ssh_server_address,
+            port=ssh_server_port,
+            username=ssh_server_username,
+            password=ssh_server_password,
         )
         ssh_client.config_ssh_server()
         free_port_on_server = ssh_client.get_free_port()
@@ -143,6 +142,7 @@ def get_docker_host(
             ssh_server_username,
             ssh_server_password,
             free_port_on_server,
+            spy_container.get_docker_host_ssh_port(),
         )
         logger.info(
             'You can connect to docker host with ssh service "ssh -o '
@@ -156,12 +156,15 @@ def get_docker_host(
         ...
         spy_container.delete_username_from_docker_host(username)
         spy_container.delelte_username_from_sudoer_group(username)
-        # try:
-        #     docker_client.remove_container(spy_container)
-        #     logger.info('Surena removed Image "spy container" from Docker Host.')
-        # except ValueError:
-        #     logger.error("Surena could not remove container from Docker Host.")
+        spy_container.delelte_username_from_sudoer_group(username)
+        
+        try:
+            docker_client.remove_container(spy_container.container.id)
+            logger.info('Surena removed Image "spy container" from Docker Host.')
+        except ValueError as e:
+            logger.error(f"Surena could not remove container from Docker Host.{e}")
 
+        docker_client.remove_image(image)
         # try:
         #     docker_client.remove_image(image)
         #     logger.info(

