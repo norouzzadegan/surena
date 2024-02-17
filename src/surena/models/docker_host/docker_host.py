@@ -99,7 +99,7 @@ class DockerHost:
                 timeout=self.CONNECTION_TIMEOUT,
             )[0]
         except (BuildError, APIError):
-            raise BuildError(f"Cannot build image\n.\n{self._exception_text}")
+            raise ValueError(f"Cannot build image\n.\n{self._exception_text}")
 
     def run_container(self, image: ImageCollection, **kwrgs) -> ContainerCollection:
         try:

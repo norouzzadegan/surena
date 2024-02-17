@@ -1,15 +1,14 @@
 import time
 
 
-def countdown(secends: int) -> None:
-    while secends:
-        mins, secs = divmod(secends, 60)
+def countdown(seconds: int) -> None:
+    while seconds > 0:
+        mins, secs = divmod(seconds, 60)
         hours, mins = divmod(mins, 60)
         days, hours = divmod(hours, 24)
-        print(
-            "{:02d}:{:02d}:{:02d}:{:02d}".format(days, hours, mins, secs),
-            "Until to stop.",
-            end="\r",
-        )
+
+        countdown_str = "{:02d}:{:02d}:{:02d}:{:02d}".format(days, hours, mins, secs)
+        print(countdown_str, "Until Surena stops.", end="\r")
+
         time.sleep(1)
-        secends -= 1
+        seconds -= 1

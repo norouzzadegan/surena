@@ -3,7 +3,7 @@ import logging
 import click
 
 from surena.cli.options import Port
-from surena.models.docker_client import DockerHost
+from surena.models.docker_host import DockerHost
 
 logger = logging.getLogger()
 

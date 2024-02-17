@@ -5,7 +5,7 @@ from pkg_resources import resource_filename
 
 from surena.cli.options import Port, required_if_option_has_specific_value
 from surena.models.commons import countdown
-from surena.models.docker_client import DockerHost, SpyContainer
+from surena.models.docker_host import DockerHost, SpyContainer
 from surena.models.ssh import SSHServer
 
 logging.basicConfig(level=logging.INFO)
@@ -153,28 +153,24 @@ def get_docker_host(
     try:
         countdown(SECONDS_OF_LIVE)
     finally:
-        ...
         spy_container.delete_username_from_docker_host(username)
         spy_container.delelte_username_from_sudoer_group(username)
         spy_container.delelte_username_from_sudoer_group(username)
-        
+
         try:
             docker_client.remove_container(spy_container.container.id)
             logger.info('Surena removed Image "spy container" from Docker Host.')
         except ValueError as e:
             logger.error(f"Surena could not remove container from Docker Host.{e}")
 
-        docker_client.remove_image(image)
-        # try:
-        #     docker_client.remove_image(image)
-        #     logger.info(
-        #         'Surena removed Image "{}" from Docker Host.'.format(image_name)
-        #     )
-        # except:
-        #     logger.error(
-        #         'Surena could not remove Image "{}" from Docker Host.'.format(
-        #             image_name
-        #         )
-        #     )
-        # docker_client.destroy_containers()
-        # docker_client.destroy_images()
+        try:
+            docker_client.remove_image(image)
+            logger.info(
+                'Surena removed Image "{}" from Docker Host.'.format(image_name)
+            )
+        except:
+            logger.error(
+                'Surena could not remove Image "{}" from Docker Host.'.format(
+                    image_name
+                )
+            )
