@@ -82,7 +82,7 @@ def get_docker_host(
     """
     docker_client = DockerHost(docker_host_address, docker_host_port)
 
-    print(
+    logger.info(
         'Docker host operation system is "{}".'.format(
             docker_client.get_docker_host_operation_system_type()
         )
@@ -92,7 +92,7 @@ def get_docker_host(
         "surena.models.docker_client",
         "ubuntu.Dockerfile",
     )
-    image_name = docker_client.get_image_unique_name()
+    image_name = docker_client.generate_unique_image_name()
 
     image = docker_client.build_image(ubuntu_dockerfile_path, image_name)
 
@@ -117,7 +117,7 @@ def get_docker_host(
     if access_method == "tor":
         tor_port = spy_container.get_free_port_on_docker_host()
         spy_container.config_service_tor(docker_host_free_port, tor_port)
-        spy_container.start_service_tor()
+        spy_container.run_tor_service()
         spy_container.wait_until_conect_to_tor_network()
         tor_hostname = spy_container.get_tor_hostname().strip()
         logger.info(
