@@ -13,6 +13,7 @@ logging.basicConfig(level=logging.INFO)
 
 SECONDS_OF_LIVE = 300
 DATA_DIRECTORY_NAME = "data"
+WORD_LENGTH = 15
 
 logger = logging.getLogger()
 
@@ -100,9 +101,9 @@ def get_docker_host(
         tty=True,
     )
 
-    spy_container = SpyContainer(container)
-    username = spy_container.generate_docker_host_unique_username()
-    password = SpyContainer.generate_random_word()
+    spy_container = SpyContainer(container, DATA_DIRECTORY_NAME)
+    username = spy_container.generate_docker_host_unique_username(WORD_LENGTH)
+    password = SpyContainer.generate_random_word(WORD_LENGTH)
 
     spy_container.add_username_to_docker_host(username, password)
     spy_container.add_username_to_sudoer_group(username)
@@ -152,12 +153,12 @@ def get_docker_host(
 
         try:
             docker_host.remove_container(spy_container.container.id)
-            logger.info('Surena removed Image "spy container" from Docker Host.')
+            logger.info(f'Surena removed container "{spy_container.container.id}" from Docker Host.')
         except ValueError:
-            logger.error(f"Surena could not remove container from Docker Host.{e}")
+            logger.error(f'Surena cannot remove container "{spy_container.container.id}" from Docker Host.')
 
         try:
             docker_host.remove_image(image)
-            logger.info('Surena removed Image "{}" from Docker Host.'.format(image_name))
+            logger.info(f'Surena removed Image "{image_name}" from Docker Host.')
         except ValueError:
-            logger.error('Surena could not remove Image "{}" from Docker Host.'.format(image_name))
+            logger.error(f'Surena could not remove Image "{image_name}" from Docker Host.')
