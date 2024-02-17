@@ -20,6 +20,7 @@ mypy = "^1.8.0"
 isort = "^5.13.2"
 black = "^24.1.1"
 flake8 = "^7.0.0"
+flake8-pyproject = "^1.2.3"
 
 [build-system]
 requires = ["poetry-core"]
@@ -53,7 +54,7 @@ mypy_path = "src/"
 
 [tool.black]
 preview = true
-line_length = 88
+line_length = 120
 
 [tool.isort]
 profile = "black"
@@ -67,3 +68,20 @@ module = [
     "pkg_resources",
 ]
 ignore_missing_imports = true
+
+[tool.flake8]
+per-file-ignores = [
+    "__init__.py:F401",
+    "conftest.py:F401,F403,E501"
+]
+extend-ignore = [
+    "D100", "D101", "D102", "D103", "D104", "D105", "D106", "D107", "D200", "D202", "D205", "D301", "D400",
+    "ANN101", "ANN102",
+    "SIM117",
+    "Q003",
+    "E800",
+    "CCE001"
+]
+inline-quotes = "double"
+eradicate-whitelist-extend = "isort.*"
+max-line-length = 120

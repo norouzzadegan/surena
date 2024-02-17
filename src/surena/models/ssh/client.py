@@ -1,6 +1,8 @@
 import random
 import time
+
 import paramiko
+
 
 class SSHServer:
     def __init__(self, address: str, port: int, username: str, password: str) -> None:
@@ -17,9 +19,7 @@ class SSHServer:
         self.execute_command("systemctl restart sshd.service")
 
     def enable_gateway_port_on_public_server(self) -> None:
-        self.execute_command(
-            "sed -i 's@#GatewayPorts no @GatewayPorts clientspecified@' /etc/ssh/sshd_config"
-        )
+        self.execute_command("sed -i 's@#GatewayPorts no @GatewayPorts clientspecified@' /etc/ssh/sshd_config")
 
     def get_free_port(self) -> int:
         while True:

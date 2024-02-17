@@ -11,9 +11,8 @@ from surena.models.ssh import SSHServer
 logging.basicConfig(level=logging.INFO)
 
 
-# SECONDS_OF_LIVE = 300
-SECONDS_OF_LIVE = 10
-
+SECONDS_OF_LIVE = 300
+DATA_DIRECTORY_NAME = "data"
 
 logger = logging.getLogger()
 
@@ -80,28 +79,23 @@ def get_docker_host(
     The "get-docker-host" command can show you if your Docker host has
     vulnerabilities due to misconfiguration.
     """
-    docker_client = DockerHost(docker_host_address, docker_host_port)
-
-    logger.info(
-        'Docker host operation system is "{}".'.format(
-            docker_client.get_docker_host_operation_system_type()
-        )
-    )
+    docker_host = DockerHost(docker_host_address, docker_host_port)
+    logger.info('Docker host operation system is "{}".'.format(docker_host.get_docker_host_operation_system_type()))
 
     ubuntu_dockerfile_path = resource_filename(
-        "surena.models.docker_client",
+        "surena.models.docker_host",
         "ubuntu.Dockerfile",
     )
-    image_name = docker_client.generate_unique_image_name()
+    image_name = docker_host.generate_unique_image_name()
 
-    image = docker_client.build_image(ubuntu_dockerfile_path, image_name)
+    image = docker_host.build_image(ubuntu_dockerfile_path, image_name)
 
-    container = docker_client.run_container(
+    container = docker_host.run_container(
         image,
         command="/bin/sh",
         detach=True,
         remove=True,
-        volumes={"/": {"bind": "/data", "mode": "rw"}},
+        volumes={"/": {"bind": f"/{DATA_DIRECTORY_NAME}", "mode": "rw"}},
         network="host",
         tty=True,
     )
@@ -109,21 +103,21 @@ def get_docker_host(
     spy_container = SpyContainer(container)
     username = spy_container.generate_docker_host_unique_username()
     password = SpyContainer.generate_random_word()
+
     spy_container.add_username_to_docker_host(username, password)
     spy_container.add_username_to_sudoer_group(username)
+
     docker_host_free_port = spy_container.get_free_port_on_docker_host()
+    docker_host_ssh_port = spy_container.get_docker_host_ssh_port()
 
     if access_method == "tor":
-        tor_port = spy_container.get_free_port_on_docker_host()
-        spy_container.config_service_tor(docker_host_free_port, tor_port)
+        spy_container.config_service_tor(docker_host_ssh_port, docker_host_free_port)
         spy_container.run_tor_service()
         spy_container.wait_until_connect_to_tor_network()
         tor_hostname = spy_container.get_tor_hostname().strip()
         logger.info(
             'Run command "torsocks ssh {}@{} -p {}" to connect to target host with'
-            " password {}".format(
-                username, tor_hostname, docker_host_free_port, password
-            )
+            " password {}".format(username, tor_hostname, docker_host_free_port, password)
         )
     else:
         ssh_client = SSHServer(
@@ -157,19 +151,13 @@ def get_docker_host(
         spy_container.delelte_username_from_sudoer_group(username)
 
         try:
-            docker_client.remove_container(spy_container.container.id)
+            docker_host.remove_container(spy_container.container.id)
             logger.info('Surena removed Image "spy container" from Docker Host.')
-        except ValueError as e:
+        except ValueError:
             logger.error(f"Surena could not remove container from Docker Host.{e}")
 
         try:
-            docker_client.remove_image(image)
-            logger.info(
-                'Surena removed Image "{}" from Docker Host.'.format(image_name)
-            )
-        except:
-            logger.error(
-                'Surena could not remove Image "{}" from Docker Host.'.format(
-                    image_name
-                )
-            )
+            docker_host.remove_image(image)
+            logger.info('Surena removed Image "{}" from Docker Host.'.format(image_name))
+        except ValueError:
+            logger.error('Surena could not remove Image "{}" from Docker Host.'.format(image_name))

@@ -4,6 +4,7 @@ import random
 import socket
 import string
 from pathlib import Path
+
 import urllib3
 from docker import DockerClient
 from docker.client import ContainerCollection, ImageCollection
@@ -42,9 +43,7 @@ class DockerHost:
 
     def _check_server_up(self) -> bool:
         try:
-            with socket.create_connection(
-                (self._address, self._port), timeout=self.CONNECTION_TIMEOUT
-            ):
+            with socket.create_connection((self._address, self._port), timeout=self.CONNECTION_TIMEOUT):
                 return True
         except (socket.timeout, ConnectionRefusedError):
             return False
@@ -82,9 +81,7 @@ class DockerHost:
         existing_image_names = {i.tags[0] for i in self._client.images.list() if i.tags}
 
         while True:
-            image_name = "".join(
-                random.choice(string.ascii_lowercase) for _ in range(10)
-            )
+            image_name = "".join(random.choice(string.ascii_lowercase) for _ in range(10))
             if f"{image_name}:{image_name}" not in existing_image_names:
                 return f"{image_name}:{image_name}"
 
@@ -105,23 +102,17 @@ class DockerHost:
         try:
             return self._client.containers.run(image.id, **kwrgs)
         except (ContainerError, APIError):
-            return ValueError(
-                f"Surena cannot run a container on Docker host.\n{self._exception_text}"
-            )
+            return ValueError(f"Surena cannot run a container on Docker host.\n{self._exception_text}")
 
     def remove_image(self, image: ImageCollection) -> None:
         try:
             self._client.images.remove(image=image.id, force=True, noprune=False)
         except (ImageNotFound, APIError):
-            raise ValueError(
-                f'Surena cannot remove image "{image.name}".\n{self._exception_text}'
-            )
+            raise ValueError(f'Surena cannot remove image "{image.name}".\n{self._exception_text}')
 
     def remove_container(self, container: ContainerCollection) -> None:
         try:
             container_: Container = self._client.containers.get(container)
             container_.remove(force=True)
         except (ImageNotFound, APIError):
-            raise ValueError(
-                f'Surena cannot remove container "{container.name}".\n{self._exception_text}'
-            )
+            raise ValueError(f'Surena cannot remove container "{container.name}".\n{self._exception_text}')

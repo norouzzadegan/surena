@@ -391,6 +391,23 @@ pycodestyle = ">=2.11.0,<2.12.0"
 pyflakes = ">=3.2.0,<3.3.0"
 
 [[package]]
+name = "flake8-pyproject"
+version = "1.2.3"
+description = "Flake8 plug-in loading the configuration from pyproject.toml"
+optional = false
+python-versions = ">= 3.6"
+files = [
+    {file = "flake8_pyproject-1.2.3-py3-none-any.whl", hash = "sha256:6249fe53545205af5e76837644dc80b4c10037e73a0e5db87ff562d75fb5bd4a"},
+]
+
+[package.dependencies]
+Flake8 = ">=5"
+TOMLi = {version = "*", markers = "python_version < \"3.11\""}
+
+[package.extras]
+dev = ["pyTest", "pyTest-cov"]
+
+[[package]]
 name = "idna"
 version = "3.6"
 description = "Internationalized Domain Names in Applications (IDNA)"
@@ -763,4 +780,4 @@ zstd = ["zstandard (>=0.18.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8.1"
-content-hash = "db7826382eb21e8c8de20f528df84a49e18b018b6f0ffc580086ff0df49fdd60"
+content-hash = "97a9dc5d713b6bc1235e912b16bca0baa3e546814bddcb5681eb0cc14e2f6bfd"

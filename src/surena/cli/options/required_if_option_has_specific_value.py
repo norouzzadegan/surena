@@ -1,12 +1,9 @@
-import socket
 from typing import Any, List, Mapping, Tuple, Type
 
 import click
 
 
-def required_if_option_has_specific_value(
-    option_name: str, option_value: str
-) -> Type[click.Option]:
+def required_if_option_has_specific_value(option_name: str, option_value: str) -> Type[click.Option]:
     option_name = option_name.replace("-", "_")
 
     class RequiredIfOptionHasSpecificValue(click.Option):
