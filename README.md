@@ -8,17 +8,6 @@ With Surena, you can determine if your Docker daemon is vulnerable. Additionally
 
 You can install Surena from PyPI by executing the following command:
 
-
-# Surena
-
-Surena is a tool designed to help you assess whether your Docker daemon has vulnerabilities. It utilizes Click, a Python CLI library, for its development.
-
-With Surena, you can determine if your Docker daemon is vulnerable. Additionally, it illustrates potential security risks when Docker daemons expose ports insecurely. We've also written an article on Medium explaining how Surena works. You can access the article [here](#).
-
-## Installation
-
-You can install Surena from PyPI by executing the following command:
-
 ```bash
 pip install surena
 ```
