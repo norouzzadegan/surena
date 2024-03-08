@@ -86,9 +86,9 @@ jobs:
         run: |
           pip install poetry==1.7.0
 
-      - name: Install dependencies
-        run: |
-          poetry install
+      # - name: Install dependencies
+      #   run: |
+      #     poetry install
 
       - name: Configure Poetry repositories
         run: |
@@ -98,10 +98,10 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: surena-package
-          path: .dist/
+          path: dist/
 
       - name: Publish package
         run: |
-          ls -la .dist/
+          ls -la dist/
           pwd
           poetry publish
