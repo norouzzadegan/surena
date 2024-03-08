@@ -3,7 +3,10 @@ name: CI
 on:
   push:
     branches:
-      - add-surena-command
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   test:
@@ -43,8 +46,7 @@ jobs:
   package:
     runs-on: ubuntu-latest
     needs: test
-    # if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    if: github.ref == 'refs/heads/add-surena-command' && github.event_name == 'push'
+    if: ${{ github.ref == 'refs/heads/main' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -73,8 +75,7 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     needs: package
-    # if: ${{ github.ref != 'refs/heads/main' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
-    if: ${{ github.ref == 'refs/heads/add-surena-command' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
+    if: ${{ github.ref == 'refs/heads/main' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -85,10 +86,6 @@ jobs:
       - name: Install Poetry
         run: |
           pip install poetry==1.7.0
-
-      # - name: Install dependencies
-      #   run: |
-      #     poetry install
 
       - name: Configure Poetry repositories
         run: |
@@ -101,7 +98,4 @@ jobs:
           path: dist/
 
       - name: Publish package
-        run: |
-          ls -la dist/
-          pwd
-          poetry publish
+        run: poetry publish
