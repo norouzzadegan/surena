@@ -67,7 +67,7 @@ jobs:
       - name: Archive artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: package
+          name: surena-package
           path: dist/*
 
   publish:
@@ -94,8 +94,14 @@ jobs:
         run: |
           poetry config pypi-token.pypi ${{ secrets.PYPI_TOKEN }}
 
+      - name: Download Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: surena-package
+          path: .dist
+
       - name: Publish package
         run: |
-          ls
+          ls -la
           pwd
           poetry publish
