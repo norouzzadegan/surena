@@ -96,4 +96,6 @@ jobs:
 
       - name: Publish package
         run: |
+          ls
+          pwd
           poetry publish
