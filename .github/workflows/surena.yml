@@ -43,7 +43,8 @@ jobs:
   package:
     runs-on: ubuntu-latest
     needs: test
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    # if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/add-surena-command' && github.event_name == 'push'
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
