@@ -98,10 +98,10 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: surena-package
-          path: .dist
+          path: .dist/
 
       - name: Publish package
         run: |
-          ls -la
+          ls -la .dist/
           pwd
           poetry publish
