@@ -40,34 +40,34 @@ jobs:
         run: |
           poetry run mypy src/
 
-  # package:
-  #   runs-on: ubuntu-latest
-  #   needs: test
-  #   if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v2
+  package:
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-  #     - name: Set up Python
-  #       uses: actions/setup-python@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
 
-  #     - name: Install Poetry
-  #       run: |
-  #         pip install poetry==1.7.0
+      - name: Install Poetry
+        run: |
+          pip install poetry==1.7.0
 
-  #     - name: Install dependencies
-  #       run: |
-  #         poetry install
+      - name: Install dependencies
+        run: |
+          poetry install
 
-  #     - name: Build package
-  #       run: |
-  #         poetry build
+      - name: Build package
+        run: |
+          poetry build
 
-  #     - name: Archive artifacts
-  #       uses: actions/upload-artifact@v2
-  #       with:
-  #         name: package
-  #         path: dist/*
+      - name: Archive artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: package
+          path: dist/*
 
   # publish:
   #   runs-on: ubuntu-latest
