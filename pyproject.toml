@@ -27,7 +27,7 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-surena = "src.surena.__main__:cli"
+surena = "surena.__main__:cli"
 
 [tool.mypy]
 namespace_packages = true

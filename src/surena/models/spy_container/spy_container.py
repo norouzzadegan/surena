@@ -87,13 +87,13 @@ class SpyContainer:
             if str(free_port) not in open_ports:
                 return free_port
 
-    def config_service_tor(self, docker_host_ssh_port: int, tor_port_on_docker_host: int) -> None:
+    def config_service_tor(self, docker_host_ssh_port: int, ssh_tor_port_on_docker_host: int, tor_port_on_docker_host: int) -> None:
         torrc_file = "/etc/tor/torrc"
 
         socks_port_command = f"sed -i 's/#SocksPort 9050/SocksPort {tor_port_on_docker_host}/g' {torrc_file}"
         ssh_port_command = (
             "sed -i '0,/#HiddenServicePort 80 "
-            f"127.0.0.1:80/s//HiddenServicePort {docker_host_ssh_port} 0.0.0.0:{docker_host_ssh_port}/' {torrc_file}"
+            f"127.0.0.1:80/s//HiddenServicePort {ssh_tor_port_on_docker_host} 0.0.0.0:{docker_host_ssh_port}/' {torrc_file}"
         )
         hidden_service_command = rf"sed -i '/#HiddenServiceDir \/var\/lib\/tor\/hidden_service\//s/^#//g' {torrc_file}"
         chown_command = "chown root:root /var/lib/tor"
@@ -109,7 +109,10 @@ class SpyContainer:
             self.execute_command(command)
 
     def run_tor_service(self) -> None:
-        self.execute_command("nohup tor -f /etc/tor/torrc &")
+        # self.execute_command("nohup tor -f /etc/tor/torrc &")
+        self.execute_command("echo 'tor -f /etc/tor/torrc &' > tor.sh")
+        self.execute_command("chmod +x tor.sh")
+        self.execute_command("nohup ./tor.sh")
 
     def get_tor_hostname(self) -> str:
         return str(self.execute_command("cat /var/lib/tor/hidden_service/hostname"))
