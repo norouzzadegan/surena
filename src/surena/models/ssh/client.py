@@ -1,7 +1,10 @@
+import logging
 import random
 import time
 
 import paramiko
+
+logger = logging.getLogger()
 
 
 class SSHServer:
@@ -11,7 +14,7 @@ class SSHServer:
         self._client.connect(address, port=port, username=username, password=password)
 
     def execute_command(self, command: str) -> None:
-        stdin, stdout, stderr = self._client.exec_command(command)
+        _, stdout, _ = self._client.exec_command(command)
         if stdout.channel.recv_exit_status() != 0:
             raise ValueError("Command execution failed")
 
@@ -19,7 +22,9 @@ class SSHServer:
         self.execute_command("systemctl restart sshd.service")
 
     def enable_gateway_port_on_public_server(self) -> None:
-        self.execute_command("sed -i 's@#GatewayPorts no @GatewayPorts clientspecified@' /etc/ssh/sshd_config")
+        logger.warning('"GatewayPorts" in SSH Remote Server change to "clientspecified".')
+        self.execute_command("sed -i 's@#GatewayPorts no@GatewayPorts clientspecified@' /etc/ssh/sshd_config")
+        self.execute_command("sed -i 's@#GatewayPorts yes@GatewayPorts clientspecified@' /etc/ssh/sshd_config")
 
     def get_free_port(self) -> int:
         while True:

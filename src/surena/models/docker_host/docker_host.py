@@ -106,9 +106,9 @@ class DockerHost:
 
     def remove_image(self, image: ImageCollection) -> None:
         try:
-            self._client.images.remove(image=image.id, force=True, noprune=False)
+            self._client.images.remove(image=image.id, force=True)
         except (ImageNotFound, APIError):
-            raise ValueError(f'Surena cannot remove image "{image.name}".\n{self._exception_text}')
+            raise ValueError(f'Surena cannot remove image "{image.id}".\n{self._exception_text}')
 
     def remove_container(self, container: ContainerCollection) -> None:
         try:

@@ -112,7 +112,9 @@ def get_docker_host(
     docker_host_ssh_port = spy_container.get_docker_host_ssh_port()
     if access_method == "tor":
         docker_host_free_port_for_tor_service = spy_container.get_free_port_on_docker_host()
-        spy_container.config_service_tor(docker_host_ssh_port, docker_host_free_port, docker_host_free_port_for_tor_service)
+        spy_container.config_service_tor(
+            docker_host_ssh_port, docker_host_free_port, docker_host_free_port_for_tor_service
+        )
         spy_container.run_tor_service()
         spy_container.wait_until_connect_to_tor_network()
         tor_hostname = spy_container.get_tor_hostname().strip()
