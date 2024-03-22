@@ -13,16 +13,13 @@ logger = logging.getLogger()
 @click.option("--docker-host-port", required=True, type=Port(), help="The Docker host port.")
 def is_docker_host(docker_host_address: str, docker_host_port: int) -> None:
     """
-    Checks whether it is possible to access the Docker service via TCP or not.
+    Check if the Docker daemon port is exposed and accessible via TCP.
     """
     try:
         DockerHost(docker_host_address, docker_host_port)
-        logger.info(f'Address "{docker_host_address}:{docker_host_port}" is a docker host.')
+        logger.info(f'Address "{docker_host_address}:{docker_host_port}" is a Docker host.')
     except ValueError:
         logger.error(
-            'Surena could not understand address "{docker_host_address}:{port}" is a'
-            ' docker host.\nYou can test it by using command: "docker -H'
-            ' tcp://{docker_host_address}:{port} --version"'.format(
-                docker_host_address=docker_host_address, port=docker_host_port
-            )
+            f'Surena could not understand address "{docker_host_address}:{docker_host_port}" as a Docker host.\n'
+            f'You can test it by using the command: "docker -H tcp://{docker_host_address}:{docker_host_port} --version"'
         )
