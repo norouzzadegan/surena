@@ -16,8 +16,8 @@ def required_if_option_has_specific_value(option_name: str, option_value: str) -
         ) -> Tuple[Any, List[str]]:
             if option_name not in options:
                 raise click.UsageError(
-                    'The option "{}" you entered does not exist in option '
-                    'list "{}".'.format(option_name, list(options.keys()))
+                    f'The option "{option_name}" you entered does not exist in option '
+                    f'list "{list(options.keys())}".'
                 )
 
             if option_value != options[option_name]:

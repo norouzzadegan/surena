@@ -81,7 +81,7 @@ def get_docker_host(
     vulnerabilities due to misconfiguration.
     """
     docker_host = DockerHost(docker_host_address, docker_host_port)
-    logger.info('Docker host operation system is "{}".'.format(docker_host.get_docker_host_operation_system_type()))
+    logger.info(f'Docker host operation system is "{docker_host.get_docker_host_operation_system_type()}".')
 
     ubuntu_dockerfile_path = resource_filename(
         "surena.models.docker_host",
@@ -119,9 +119,11 @@ def get_docker_host(
         spy_container.wait_until_connect_to_tor_network()
         tor_hostname = spy_container.get_tor_hostname().strip()
         logger.info(
-            'Run command "torsocks ssh {}@{} -p {}" to connect to target host with'
-            " password {}".format(username, tor_hostname, docker_host_free_port, password)
+            f'Run command "torsocks ssh {username}@{tor_hostname} '
+            f'-p {docker_host_free_port}" to connect to target host '
+            f"with password {password}"
         )
+
     else:
         ssh_client = SSHServer(
             address=ssh_server_address,
@@ -141,9 +143,9 @@ def get_docker_host(
             spy_container.get_docker_host_ssh_port(),
         )
         logger.info(
-            'You can connect to docker host with ssh service "ssh -o '
-            "'StrictHostKeyChecking no' {}@{} -p {}\" with password "
-            "{} ".format(username, ssh_server_address, free_port_on_server, password)
+            "You can connect to docker host with ssh service "
+            f"\"ssh -o 'StrictHostKeyChecking no' {username}@{ssh_server_address} "
+            f'-p {free_port_on_server}" with password {password}'
         )
 
     try:

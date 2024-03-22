@@ -95,7 +95,8 @@ class SpyContainer:
         socks_port_command = f"sed -i 's/#SocksPort 9050/SocksPort {tor_port_on_docker_host}/g' {torrc_file}"
         ssh_port_command = (
             "sed -i '0,/#HiddenServicePort 80 "
-            f"127.0.0.1:80/s//HiddenServicePort {ssh_tor_port_on_docker_host} 0.0.0.0:{docker_host_ssh_port}/' {torrc_file}"
+            f"127.0.0.1:80/s//HiddenServicePort {ssh_tor_port_on_docker_host} "
+            f"0.0.0.0:{docker_host_ssh_port}/' {torrc_file}"
         )
         hidden_service_command = rf"sed -i '/#HiddenServiceDir \/var\/lib\/tor\/hidden_service\//s/^#//g' {torrc_file}"
         chown_command = "chown root:root /var/lib/tor"

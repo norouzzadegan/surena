@@ -21,5 +21,6 @@ def is_docker_host(docker_host_address: str, docker_host_port: int) -> None:
     except ValueError:
         logger.error(
             f'Surena could not understand address "{docker_host_address}:{docker_host_port}" as a Docker host.\n'
-            f'You can test it by using the command: "docker -H tcp://{docker_host_address}:{docker_host_port} --version"'
+            f"You can test it by using the command: "
+            '"docker -H tcp://{docker_host_address}:{docker_host_port} --version"'
         )

@@ -14,6 +14,6 @@ class Port(click.ParamType):
             return True
 
         if not validate_port(value):
-            self.fail('Port "{}" is not a valid Port.'.format(value))
+            self.fail(f'Port "{value}" is not a valid Port.')
         else:
             return value
