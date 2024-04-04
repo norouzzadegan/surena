@@ -1,4 +1,5 @@
 import logging
+import os
 import random
 import string
 import time
@@ -14,6 +15,13 @@ class SpyContainer:
     def __init__(self, spy_container: Container, hole_directory_path: str) -> None:
         self._spy_container = spy_container
         self._hole_directory_path = hole_directory_path
+        self.put_warning_file()
+
+    def put_warning_file(self) -> None:
+        warning_surena_path = os.path.join(os.path.dirname(__file__), "WARNING.surena")
+        with open(warning_surena_path, "r") as file:
+            content = file.read()
+        self.execute_command(f'echo "{content}" > {self._hole_directory_path}/root/WARNING.surena')
 
     def get_docker_host_ssh_port(self) -> int:
         sshd_port_command = (

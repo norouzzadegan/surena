@@ -21,5 +21,4 @@ surena --help
 Note: Surena is intended for lab use and for understanding whether your Docker daemon is secure or insecure. DO NOT USE SURENA FOR MALICIOUS ACTIVITIES.
 
 If Surena proves helpful for you or your organization, consider supporting us by donating Dogecoin to the following wallet:
-
-[Insert Dogecoin Wallet Address Here]
+DRizEG8R6wW2cW5MNEAnERMMEMq6wupQMA
