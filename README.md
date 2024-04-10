@@ -20,7 +20,6 @@ surena --help
 
 Surena has two commands: `is-docker-host` and `get-docker-host`.
 
-### `is-docker-host` command
 
 The `is-docker-host` command is used for checking if the Docker daemon's port is accessible from the network. To understand its options, run the following command:
 
@@ -34,7 +33,7 @@ For example, you can run this command with the following options:
 surena is-docker-host --docker-host-address $DOCKER_HOST_IP --docker-host-port $DOCKER_HOST_PORT
 ```
 
-### `get-docker-host` command
+
 
 The `get-docker-host` command is used to gain shell access from the Docker daemon using two methods. To understand its options, run the following command:
 
