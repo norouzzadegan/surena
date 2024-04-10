@@ -120,7 +120,7 @@ def get_docker_host(
         tor_hostname = spy_container.get_tor_hostname().strip()
         logger.info(
             f'Run command "torsocks ssh {username}@{tor_hostname} '
-            f'-p {docker_host_free_port}" to connect to target host '
+            f'-p {docker_host_free_port}" to connect to Docker host '
             f"with password {password}"
         )
 

