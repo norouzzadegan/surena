@@ -1,6 +1,6 @@
 # Surena
 
-Surena is a tool developed to assess vulnerabilities in Docker daemons when their ports are exposed to a TCP network. It is developed using Click, a Python CLI library, and the Docker SDK for Python. Surena demonstrates how a hacker can gain shell access from an insecure Docker host using two methods: Tor Network and SSH Reverse Tunneling. To explain how Surena works and how to use these methods, we have written an article on Medium that you can read by following this link: [article](https://medium.com/@norouzzadegan/how-an-insecure-docker-daemon-configuration-allowed-hackers-to-gain-shell-access-to-the-docker-host-69628c4be503).
+Surena is a tool developed to assess vulnerabilities in Docker daemons when their ports are exposed to a TCP network. It is developed using Click, a Python CLI library, and the Docker SDK for Python. Surena demonstrates how a hacker can gain shell access from an insecure Docker host using two methods: Tor Network and SSH Reverse Tunneling. To explain how Surena works and how to use these methods, we have written an article on Medium that you can read by following this link: [article](https://medium.com/@norouzzadegan/69628c4be503).
 
 ## Installation
 
