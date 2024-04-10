@@ -33,7 +33,7 @@ The `get-docker-host` command is used to gain shell access from the Docker daemo
 ```bash
 surena get-docker-host --help
 ```
-
+Please note, if Surena can gain shell access from the Docker host, it will create a text file named "WARNING.surena" in the "/root/" path of the Docker host.
 For example, to gain shell access using the Tor Network method, run this command with the following options:
 
 ```bash
