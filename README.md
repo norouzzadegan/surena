@@ -15,7 +15,7 @@ Once installed, you can run Surena using the following commands in your terminal
 ```bash
 surena --help
 ```
-
+## Using
 Surena has two commands: `is-docker-host` and `get-docker-host`. The `is-docker-host` command is used for checking if the Docker daemon's port is accessible from the network. To understand its options, run the following command:
 
 ```bash
@@ -48,8 +48,8 @@ surena get-docker-host --docker-host-address $DOCKER_HOST_IP --docker-host-port 
 
 Please note that `$DOCKER_HOST_IP`, `$DOCKER_HOST_PORT`, `$THIRD_SERVER_IP`, `$THIRD_SERVER_USERNAME`, `$THIRD_SERVER_PASSWORD`, and `$THIRD_SERVER_SSH_PORT` should be replaced with the appropriate values.
 
-## Warning:
+## Warning
 Please note: Surena is intended for lab use and for understanding whether your Docker daemon is secure or insecure. DO NOT USE SURENA FOR MALICIOUS ACTIVITIES.
 
-## Donate:
-If Surena has helped you secure your infrastructure, particularly those utilizing Docker daemons over the network, we would be thrilled if you could consider supporting us by donating Dogecoin, Our Dogecoin wallet address for donations is: DRizEG8R6wW2cW5MNEAnERMMEMq6wupQMA
+## Donate
+If Surena has helped you secure your infrastructure, particularly those utilizing Docker daemons over the network, we would be thrilled if you could consider supporting us by donating Dogecoin, Our Dogecoin wallet address for donations is: ‍‍```DRizEG8R6wW2cW5MNEAnERMMEMq6wupQMA```
