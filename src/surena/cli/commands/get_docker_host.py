@@ -131,7 +131,7 @@ def get_docker_host(
             username=ssh_server_username,
             password=ssh_server_password,
         )
-        ssh_client.config_ssh_server()
+        ssh_client.check_gatewayport_is_enable_on_server()
         free_port_on_server = ssh_client.get_free_port()
 
         spy_container.reverse_ssh_from_docker_host_to_remote_server(
