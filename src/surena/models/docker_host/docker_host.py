@@ -110,7 +110,7 @@ class DockerHost:
         except (ImageNotFound, APIError):
             raise ValueError(
                 f'Surena cannot remove image "{image.id}".'
-                'You would be able to delete a docker image by running the command below:\n'
+                "You would be able to delete a docker image by running the command below:\n"
                 f'"docker rmi -f -H tcp://{self._address}:{self._port} {image.id}"'
             )
 
@@ -121,6 +121,6 @@ class DockerHost:
         except (ImageNotFound, APIError):
             raise ValueError(
                 f'Surena cannot remove container "{container.name}".\n'
-                'You would be able to delete a docker container by running the command below:\n'
+                "You would be able to delete a docker container by running the command below:\n"
                 f'"docker rm -f -H tcp://{self._address}:{self._port} {container.name}"'
             )
