@@ -29,7 +29,7 @@ class DockerHost:
         self._exception_text = (
             f'Unable to connect to Docker host "{self._address}:{self._port}". '
             f"You can check connectivity using the command:\n"
-            f'"docker -H {self._address}:{self._port} ps"\n'
+            f'"docker -H {self._address}:{self._port} info"\n'
             "to determine if access is possible."
         )
 
@@ -108,11 +108,19 @@ class DockerHost:
         try:
             self._client.images.remove(image=image.id, force=True)
         except (ImageNotFound, APIError):
-            raise ValueError(f'Surena cannot remove image "{image.id}".\n{self._exception_text}')
+            raise ValueError(
+                f'Surena cannot remove image "{image.id}".'
+                'You would be able to delete a docker image by running the command below:\n'
+                f'"docker rmi -f -H tcp://{self._address}:{self._port} {image.id}"'
+            )
 
     def remove_container(self, container: ContainerCollection) -> None:
+        container_: Container = self._client.containers.get(container)
         try:
-            container_: Container = self._client.containers.get(container)
             container_.remove(force=True)
         except (ImageNotFound, APIError):
-            raise ValueError(f'Surena cannot remove container "{container.name}".\n{self._exception_text}')
+            raise ValueError(
+                f'Surena cannot remove container "{container.name}".\n'
+                'You would be able to delete a docker container by running the command below:\n'
+                f'"docker rm -f -H tcp://{self._address}:{self._port} {container.name}"'
+            )
