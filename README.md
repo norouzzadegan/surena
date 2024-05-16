@@ -56,7 +56,7 @@ Additionally, ensure to replace `$DOCKER_HOST_IP`, `$DOCKER_HOST_PORT`, `$THIRD_
 Surena is intended for lab use and to help you understand whether your Docker daemon is secure or insecure. **PLEASE DO NOT USE SURENA FOR MALICIOUS ACTIVITIES.**
 
 ## Donate
-If Surena has helped you secure your infrastructure, particularly those utilizing Docker daemons over the network, we would be grateful if you could consider supporting us by donating Dogecoin or Tether. 
+If Surena has helped you secure your infrastructure, particularly those utilizing Docker daemons over the network, we would be grateful if you could consider supporting us by donating Tether or Dogecoin Tether. 
 
 USDT (TRC20): `TXcb1yTW71QZhqVEFx3Y1JGZVu384Mt17B` \
 Dogecoin: `DRizEG8R6wW2cW5MNEAnERMMEMq6wupQMA`
