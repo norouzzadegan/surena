@@ -1,6 +1,6 @@
 # Surena
 
-Surena is a tool developed to assess vulnerabilities in Docker daemons when their ports are exposed to a TCP network. It is developed using Click, a Python CLI library, and the Docker SDK for Python. Surena demonstrates how a hacker can gain shell access from an insecure Docker host using two methods: Tor Network and SSH Reverse Tunneling. To understand more about how Surena works and how to use these methods, please refer to our Medium article: [article](https://medium.com/@norouzzadegan/69628c4be503). The name Surena is derived from a Parthian(Iranian) spahbed from the first century BC. For further information, you can visit the [Wikipedia](https://en.wikipedia.org/wiki/Surena) page on Surena.
+Surena is a tool developed to assess vulnerabilities in Docker daemons when their ports are exposed to a TCP network. It is developed using [Click](https://click.palletsprojects.com), a Python CLI library, and the [Docker SDK for Python](https://docker-py.readthedocs.io). Surena demonstrates how a hacker can gain shell access from an insecure Docker Host using two methods: Tor Network and SSH Reverse Tunneling. To understand more about how Surena works and how to use these methods, please refer to Medium article: [article](https://medium.com/@norouzzadegan/69628c4be503). The name Surena is derived from a Parthian(Iranian) spahbed from the first century BC. For further information, you can visit the [Wikipedia](https://en.wikipedia.org/wiki/Surena) page on Surena.
 
 ## Installation
 
@@ -17,7 +17,7 @@ surena --help
 ```
 
 ## Using
-Surena offers two commands: `is-docker-host` and `get-docker-host`. The `is-docker-host` command checks if the Docker daemon's port is accessible from the network. To understand its options, run:
+Surena offers two commands: `is-docker-host` and `get-docker-host`. The `is-docker-host` command checks if the Docker daemon's TCP port is accessible from the network. To understand its options, run:
 
 ```bash
 surena is-docker-host --help
@@ -56,7 +56,7 @@ Additionally, ensure to replace `$DOCKER_HOST_IP`, `$DOCKER_HOST_PORT`, `$THIRD_
 Surena is intended for lab use and to help you understand whether your Docker daemon is secure or insecure. **PLEASE DO NOT USE SURENA FOR MALICIOUS ACTIVITIES.**
 
 ## Donate
-If Surena has helped you secure your infrastructure, particularly those utilizing Docker daemons over the network, we would be grateful if you could consider supporting us by donating Tether or Dogecoin Tether. 
+If Surena has helped you secure your infrastructure, particularly those utilizing Docker daemons over the network, we would be grateful if you could consider supporting us by donating Tether or Dogecoin. 
 
 USDT (TRC20): `TXcb1yTW71QZhqVEFx3Y1JGZVu384Mt17B` \
 Dogecoin: `DRizEG8R6wW2cW5MNEAnERMMEMq6wupQMA`
