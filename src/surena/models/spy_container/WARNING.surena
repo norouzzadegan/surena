@@ -1,0 +1,14 @@
+Your Docker daemon may have vulnerabilities, and you might inadvertently expose its
+port to the internet without considering security issues. We have written an article
+on Medium that explains how hackers can gain shell access through the Docker daemon.
+
+You can access to this article with below url:
+https://medium.com/@norouzzadegan/69628c4be503
+
+Please prioritize securing your Docker daemon promptly.
+
+If you're unable to spare time to read our Medium article, you can refer to this
+link for guidance on securing your Docker daemon: Docker Documentation on Protecting Access
+
+You can also visit our GitHub page for more information:
+https://github.com/norouzzadegan/surena
