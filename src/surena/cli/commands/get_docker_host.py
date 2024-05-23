@@ -159,10 +159,18 @@ def get_docker_host(
             docker_host.remove_container(spy_container.container.id)
             logger.info(f'Surena removed container "{spy_container.container.id}" from Docker Host.')
         except ValueError:
-            logger.error(f'Surena cannot remove container "{spy_container.container.id}" from Docker Host.')
+            logger.error(
+                f'Surena cannot remove Container "{spy_container.container.id}" from Docker Host.'
+                "You can remove the container by executing the command below on your local machine:\n"
+                f"docker -H tcp://{docker_host_address}:{docker_host_port} rm -f {spy_container.container.id}"
+            )
 
         try:
             docker_host.remove_image(image)
             logger.info(f'Surena removed Image "{image_name}" from Docker Host.')
         except ValueError:
-            logger.error(f'Surena could not remove Image "{image_name}" from Docker Host.')
+            logger.error(
+                f'Surena could not remove Image "{image_name}" from Docker Host.\n'
+                "You can remove the image by executing the command below on your local machine:\n"
+                f"docker -H tcp://{docker_host_address}:{docker_host_port} rmi -f {image_name}"
+            )
