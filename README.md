@@ -1,6 +1,6 @@
 # Surena
 
-Surena is a tool developed to assess vulnerabilities in Docker daemons when their ports are exposed to a TCP network. It is developed using [Click](https://click.palletsprojects.com), a Python CLI library, and the [Docker SDK for Python](https://docker-py.readthedocs.io/en/stable/). Surena demonstrates how a hacker can gain shell access from an insecure Docker Host using two methods: Tor Network and SSH Reverse Tunneling. To understand more about how Surena works and how to use these methods, please refer to Medium article: [article](https://medium.com/@norouzzadegan/69628c4be503). The name Surena is derived from a Parthian(Iranian) spahbed from the first century BC. For further information, you can visit the [Wikipedia](https://en.wikipedia.org/wiki/Surena) page on Surena.
+Surena is a tool developed to assess vulnerabilities in Docker daemons when their TCP socket is exposed to a network without paying attention to its security issues. It is developed using [Click](https://click.palletsprojects.com), a Python CLI library, and the [Docker SDK for Python](https://docker-py.readthedocs.io/en/stable/). Surena demonstrates how a hacker can gain shell access from an insecure Docker Host using two methods: Tor Network and SSH Reverse Tunneling. To understand more about how Surena works and how to use these methods, please refer to Medium article: [article](https://medium.com/@norouzzadegan/69628c4be503). The name Surena is derived from a Parthian(Iranian) spahbed from the first century BC. For further information, you can visit the [Wikipedia](https://en.wikipedia.org/wiki/Surena) page on Surena.
 
 ## Installation
 
@@ -56,7 +56,7 @@ Additionally, ensure to replace `$DOCKER_HOST_IP`, `$DOCKER_HOST_PORT`, `$THIRD_
 Surena is intended for lab use and to help you understand whether your Docker daemon is secure or insecure. **PLEASE DO NOT USE SURENA FOR MALICIOUS ACTIVITIES.**
 
 ## Donate
-If Surena has helped you secure your infrastructure, particularly those utilizing Docker daemons over the network, we would be grateful if you could consider supporting us by donating Tether or Dogecoin. 
+If Surena has helped you secure your infrastructure, particularly those utilizing Docker daemons over the network, I would be grateful if you could consider supporting by donating Tether or Dogecoin. 
 
 USDT (TRC20): `TXcb1yTW71QZhqVEFx3Y1JGZVu384Mt17B` \
 Dogecoin: `DRizEG8R6wW2cW5MNEAnERMMEMq6wupQMA`
