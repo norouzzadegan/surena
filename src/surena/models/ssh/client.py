@@ -35,7 +35,7 @@ class SSHServer:
     def get_free_port(self) -> int:
         while True:
             free_port = random.randint(35000, 60000)
-            exit_status = self.execute_command(f"lsof -i:{free_port}")
+            exit_status = self.execute_command(f"(lsof -i :{free_port}) && exit 1 || exit 0")
             if exit_status == 0:
                 break
         return free_port
